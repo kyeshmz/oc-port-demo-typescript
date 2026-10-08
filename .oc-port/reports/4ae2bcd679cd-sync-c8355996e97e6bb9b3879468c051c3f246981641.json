@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "upstream": {
+    "repository": "/Users/kyeshmz/Documents/personal/oc-port-agent-demo/rust-upstream",
+    "ref": "main"
+  },
+  "mode": "sync",
+  "from": "bce79454dc8d74aaad170aebcaf6720b5766120b",
+  "to": "c8355996e97e6bb9b3879468c051c3f246981641",
+  "targetBase": "5b43662820335ff60174169877652106abc85edd",
+  "commits": [
+    {
+      "sha": "d9935134e34a35f5a746f83e1ad17f6b8dd669e4",
+      "subject": "Increase retry base to 250ms and cap to 2000ms"
+    },
+    {
+      "sha": "c8355996e97e6bb9b3879468c051c3f246981641",
+      "subject": "Update installed upstream sync tool"
+    }
+  ],
+  "changedUpstreamPaths": [
+    "package-lock.json",
+    "package.json",
+    "src/lib.rs"
+  ],
+  "changedTargetPaths": [
+    "src/retry.ts",
+    "test/retry.test.mjs"
+  ],
+  "report": {
+    "summary": "Updated the TypeScript retry policy to a 250ms base and 2000ms cap, with regression coverage for exponential growth and overflow boundaries. Preserved invalid-input validation and the target-only retryLabel helper and tests. Verification was not run because command execution is unavailable.",
+    "decisions": [
+      {
+        "selection": "retry-policy",
+        "status": "applied",
+        "reason": "Updated the delay constants and upstream-derived test expectations. The existing capped exponentiation matches Rust's saturating arithmetic for every valid u32 attempt: attempts 0–2 produce 250, 500, and 1000ms, and all attempts >=3 produce 2000ms, including overflow cases. Added regression cases at Rust saturation and JavaScript exponentiation overflow boundaries without changing validation, retryLabel, parity tooling, or configuration."
+      }
+    ]
+  },
+  "verification": [
+    {
+      "command": "npm",
+      "args": [
+        "ci",
+        "--ignore-scripts"
+      ],
+      "timeoutSeconds": 300,
+      "code": 0,
+      "durationMs": 403
+    },
+    {
+      "command": "npm",
+      "args": [
+        "test"
+      ],
+      "timeoutSeconds": 300,
+      "code": 0,
+      "durationMs": 1350
+    }
+  ],
+  "note": "Agent decisions are claims for human review, not proof of behavioral equivalence. Checkpoint activates when this commit merges."
+}

@@ -1,5 +1,5 @@
-const BASE_DELAY_MS = 100;
-const MAX_DELAY_MS = 1000;
+const BASE_DELAY_MS = 250;
+const MAX_DELAY_MS = 2000;
 
 export function retryDelayMs(attempt: number): number {
   if (!Number.isInteger(attempt) || attempt < 0 || attempt > 0xffffffff) {

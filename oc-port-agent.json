@@ -1,5 +1,5 @@
 {
-  "$schema": "../../oc-port-agent/schema/oc-port-agent.schema.json",
+  "$schema": "./node_modules/oc-port-agent/schema/oc-port-agent.schema.json",
   "version": 1,
   "upstream": {
     "repository": "/Users/kyeshmz/Documents/personal/oc-port-agent-demo/rust-upstream",

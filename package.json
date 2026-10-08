@@ -1,0 +1,15 @@
+{
+  "name": "retry-policy-typescript-port",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "port": "oc-port-agent",
+    "build": "tsc",
+    "test": "npm run build && node --test test/*.test.mjs && node scripts/parity.mjs"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.0",
+    "oc-port-agent": "file:/Users/kyeshmz/Documents/personal/oc-port-agent-demo/.tooling/oc-port-agent-0.1.0.tgz"
+  }
+}

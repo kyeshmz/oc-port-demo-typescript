@@ -1,23 +1,64 @@
 {
   "$schema": "../../oc-port-agent/schema/oc-port-agent.schema.json",
   "version": 1,
-  "upstream": { "repository": "SET_BY_DEMO_SETUP", "ref": "main" },
-  "selections": [{
-    "id": "retry-policy",
-    "description": "Keep retryDelayMs aligned with the Rust retry_delay_ms function, including base delay, exponential growth, cap, and overflow edge cases. Adapt into TypeScript, not Rust syntax.",
-    "upstreamPaths": ["src/lib.rs", "src/main.rs"],
-    "targetPaths": ["src/retry.ts", "test/retry.test.mjs"],
-    "acceptance": [
-      "For all valid unsigned 32-bit attempt indices, TypeScript retryDelayMs produces the same delay as compiled Rust retry_delay_ms.",
-      "Update target regression tests to match changed upstream expectations; keep assertions meaningful.",
-      "Preserve TypeScript validation of invalid inputs and the target-only retryLabel helper."
-    ],
-    "mappings": [{ "upstream": "src/lib.rs", "target": ["src/retry.ts", "test/retry.test.mjs"] }]
-  }],
-  "preserve": ["Keep retryLabel and its tests.", "Keep RangeError validation for invalid indices.", "Do not alter the parity checker or tooling configuration."],
-  "verification": [
-    { "command": "npm", "args": ["ci", "--ignore-scripts"], "timeoutSeconds": 300 },
-    { "command": "npm", "args": ["test"], "timeoutSeconds": 300 }
+  "upstream": {
+    "repository": "/Users/kyeshmz/Documents/personal/oc-port-agent-demo/rust-upstream",
+    "ref": "main"
+  },
+  "selections": [
+    {
+      "id": "retry-policy",
+      "description": "Keep retryDelayMs aligned with the Rust retry_delay_ms function, including base delay, exponential growth, cap, and overflow edge cases. Adapt into TypeScript, not Rust syntax.",
+      "upstreamPaths": [
+        "src/lib.rs",
+        "src/main.rs"
+      ],
+      "targetPaths": [
+        "src/retry.ts",
+        "test/retry.test.mjs"
+      ],
+      "acceptance": [
+        "For all valid unsigned 32-bit attempt indices, TypeScript retryDelayMs produces the same delay as compiled Rust retry_delay_ms.",
+        "Update target regression tests to match changed upstream expectations; keep assertions meaningful.",
+        "Preserve TypeScript validation of invalid inputs and the target-only retryLabel helper."
+      ],
+      "mappings": [
+        {
+          "upstream": "src/lib.rs",
+          "target": [
+            "src/retry.ts",
+            "test/retry.test.mjs"
+          ]
+        }
+      ]
+    }
   ],
-  "opencode": { "timeoutSeconds": 300, "maxAttempts": 2, "steps": 50 }
+  "preserve": [
+    "Keep retryLabel and its tests.",
+    "Keep RangeError validation for invalid indices.",
+    "Do not alter the parity checker or tooling configuration."
+  ],
+  "verification": [
+    {
+      "command": "npm",
+      "args": [
+        "ci",
+        "--ignore-scripts"
+      ],
+      "timeoutSeconds": 300
+    },
+    {
+      "command": "npm",
+      "args": [
+        "test"
+      ],
+      "timeoutSeconds": 300
+    }
+  ],
+  "opencode": {
+    "timeoutSeconds": 300,
+    "maxAttempts": 2,
+    "steps": 50,
+    "model": "openai/gpt-6.1-sol"
+  }
 }

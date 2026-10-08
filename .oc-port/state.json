@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "upstream": {
+    "repository": "/Users/kyeshmz/Documents/personal/oc-port-agent-demo/rust-upstream",
+    "ref": "main"
+  },
+  "policyHash": "4ae2bcd679cd801a5fa5adf8d43d314db2b03c5f76b4d339dceddafc9ffc38a8",
+  "lastSyncedCommit": "bce79454dc8d74aaad170aebcaf6720b5766120b"
+}

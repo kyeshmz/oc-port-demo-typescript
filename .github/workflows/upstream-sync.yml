@@ -1,0 +1,90 @@
+name: Live upstream sync
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        type: choice
+        options: [check, sync, adopt]
+        default: check
+      provider:
+        type: choice
+        options: [opencode, external]
+        default: opencode
+      model:
+        type: string
+        default: ''
+        description: Optional provider/model override. External mode requires this or the PROVIDER_MODEL repository variable.
+permissions:
+  contents: read
+concurrency:
+  group: oc-port-agent
+  cancel-in-progress: false
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Validate required secret configuration
+        env:
+          GH_TOKEN: ${{ secrets.OC_PORT_GITHUB_TOKEN }}
+          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
+          PROVIDER_API_KEY: ${{ secrets.PROVIDER_API_KEY }}
+          MODE: ${{ inputs.mode }}
+          PROVIDER: ${{ inputs.provider }}
+          EXTERNAL_MODEL: ${{ inputs.model || vars.PROVIDER_MODEL }}
+          EXTERNAL_KEY_ENV: ${{ vars.PROVIDER_API_KEY_ENV }}
+        run: |
+          set -euo pipefail
+          if [[ -z "$GH_TOKEN" ]]; then
+            echo 'Missing OC_PORT_GITHUB_TOKEN: private upstream read and target contents/PR write are required.' >&2; exit 1
+          fi
+          if [[ "$MODE" != check ]]; then
+            if [[ "$PROVIDER" == opencode && -z "$OPENCODE_API_KEY" ]]; then
+              echo 'Missing OPENCODE_API_KEY GitHub Secret.' >&2; exit 1
+            fi
+            if [[ "$PROVIDER" == external ]]; then
+              if [[ -z "$PROVIDER_API_KEY" || -z "$EXTERNAL_MODEL" || -z "$EXTERNAL_KEY_ENV" ]]; then
+                echo 'External mode needs PROVIDER_API_KEY plus PROVIDER_MODEL/model and PROVIDER_API_KEY_ENV variables.' >&2; exit 1
+              fi
+            fi
+          fi
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22'
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: main
+          fetch-depth: 0
+          token: ${{ secrets.OC_PORT_GITHUB_TOKEN }}
+      - name: Configure private upstream Git access
+        env:
+          GH_TOKEN: ${{ secrets.OC_PORT_GITHUB_TOKEN }}
+        run: gh auth setup-git --hostname github.com
+      - name: Check or sync using OpenCode's provider
+        if: inputs.provider != 'external'
+        uses: kyeshmz/oc-port-agent@2b58c16d67947085d93d6af0e295e93e933b9462
+        with:
+          api-key: ${{ secrets.OPENCODE_API_KEY }}
+          api-key-env: OPENCODE_API_KEY
+          model: ${{ inputs.model || 'opencode/gpt-6.1-sol' }}
+          opencode-version: '2.0.26'
+          mode: ${{ inputs.mode }}
+          publish: ${{ inputs.mode == 'check' && 'false' || 'true' }}
+          repository: ${{ github.repository }}
+          base: main
+        env:
+          GH_TOKEN: ${{ secrets.OC_PORT_GITHUB_TOKEN }}
+      - name: Check or sync using an external provider
+        if: inputs.provider == 'external'
+        uses: kyeshmz/oc-port-agent@2b58c16d67947085d93d6af0e295e93e933b9462
+        with:
+          api-key: ${{ secrets.PROVIDER_API_KEY }}
+          api-key-env: ${{ vars.PROVIDER_API_KEY_ENV }}
+          model: ${{ inputs.model || vars.PROVIDER_MODEL }}
+          opencode-version: '2.0.26'
+          mode: ${{ inputs.mode }}
+          publish: ${{ inputs.mode == 'check' && 'false' || 'true' }}
+          repository: ${{ github.repository }}
+          base: main
+        env:
+          GH_TOKEN: ${{ secrets.OC_PORT_GITHUB_TOKEN }}

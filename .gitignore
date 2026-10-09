@@ -4,3 +4,4 @@ dist/
 .oc-port/context/
 .oc-port/result.json
 .oc-port/agent-output.log
+.oc-port/reference/

@@ -1,11 +1,13 @@
 import { execFileSync } from 'node:child_process';
 import { readFileSync, existsSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 import assert from 'node:assert/strict';
 import { retryDelayMs, retryLabel } from '../dist/retry.js';
 
 const config = JSON.parse(readFileSync('oc-port-agent.json', 'utf8'));
-const upstream = config.upstream.repository;
+const upstream = process.env.OC_PORT_REFERENCE_DIRECTORY
+  || (config.upstream.repository.startsWith('https://') ? resolve('.oc-port/reference') : config.upstream.repository);
+if (!existsSync(join(upstream, 'Cargo.toml'))) throw new Error('No pinned Rust reference. Run the tracking policy verification pipeline or set OC_PORT_REFERENCE_DIRECTORY for local checks.');
 const packetPath = '.oc-port/context/packet.json';
 if (existsSync(packetPath)) {
   const packet = JSON.parse(readFileSync(packetPath, 'utf8'));

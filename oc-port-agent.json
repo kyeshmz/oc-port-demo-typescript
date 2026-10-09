@@ -2,7 +2,7 @@
   "$schema": "./node_modules/oc-port-agent/schema/oc-port-agent.schema.json",
   "version": 1,
   "upstream": {
-    "repository": "/Users/kyeshmz/Documents/personal/oc-port-agent-demo/rust-upstream",
+    "repository": "https://github.com/kyeshmz/oc-port-demo-rust.git",
     "ref": "main"
   },
   "selections": [
@@ -40,6 +40,16 @@
   ],
   "verification": [
     {
+      "command": "node",
+      "args": ["scripts/prepare-reference.mjs"],
+      "timeoutSeconds": 300
+    },
+    {
+      "command": "cargo",
+      "args": ["test", "--manifest-path", ".oc-port/reference/Cargo.toml"],
+      "timeoutSeconds": 300
+    },
+    {
       "command": "npm",
       "args": [
         "ci",
@@ -59,6 +69,6 @@
     "timeoutSeconds": 300,
     "maxAttempts": 2,
     "steps": 50,
-    "model": "openai/gpt-6.1-sol"
+    "model": "opencode/gpt-6.1-sol"
   }
 }
